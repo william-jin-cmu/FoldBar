@@ -7,7 +7,7 @@
 
 ## 安装
 
-从 [GitHub Releases](https://github.com/william-jin-cmu/FoldBar/releases/latest) 下载 **FoldBar-0.2.8-arm64.dmg**，也可选择 ZIP。
+从 [GitHub Releases](https://github.com/william-jin-cmu/FoldBar/releases/latest) 下载 **FoldBar-0.2.8-arm64.dmg**，也可选择 ZIP。正式安装包已完成 **Developer ID 签名与 Apple 公证**，并附带可离线验证的公证票据。
 
 1. 打开 DMG，将 FoldBar 拖入「应用程序」。
 2. 退出其他菜单栏管理器，再从「应用程序」打开 FoldBar。

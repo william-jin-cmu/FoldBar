@@ -19,7 +19,7 @@
 
 ## Download
 
-Get **FoldBar-0.2.8-arm64.dmg** from the [latest release](https://github.com/william-jin-cmu/FoldBar/releases/latest). A ZIP is also available.
+Get **FoldBar-0.2.8-arm64.dmg** from the [latest release](https://github.com/william-jin-cmu/FoldBar/releases/latest). A ZIP is also available. Official release packages are **Developer ID signed and Apple-notarized**, with stapled tickets for offline verification.
 
 1. Open the DMG and drag **FoldBar** into **Applications**.
 2. Quit any other menu bar manager, then open FoldBar from Applications.
