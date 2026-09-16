@@ -3,7 +3,7 @@
 <p align="center"><strong>为 macOS 27 制作的简单菜单栏管理器。</strong><br>左侧收起，右侧常驻。</p>
 <p align="center"><a href="https://github.com/william-jin-cmu/FoldBar/releases/latest">下载最新版</a> · <a href="README.md">English</a></p>
 
-![展开与收起的交互示意](docs/how-it-works.svg)
+![FoldBar 在 macOS 27 上展开与收起菜单栏图标](Assets/demo.gif)
 
 ## 安装
 

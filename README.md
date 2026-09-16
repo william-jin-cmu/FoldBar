@@ -15,7 +15,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0--or--later-blue" alt="GPL-3.0-or-later"></a>
 </p>
 
-![Illustration of FoldBar's expanded and collapsed menu bar](docs/how-it-works.svg)
+![FoldBar folding and revealing menu bar icons on macOS 27](Assets/demo.gif)
 
 ## Download
 
