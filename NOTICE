@@ -1,0 +1,15 @@
+FoldBar
+Copyright (C) 2026 William Jin and contributors
+SPDX-License-Identifier: GPL-3.0-or-later
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later version.
+This program is distributed without any warranty; see LICENSE.
+
+The macOS 27 interface research and reference implementation in Pelmet
+(https://github.com/fif7y/pelmet, fif7y and contributors, GPL-3.0)
+informed the runtime bridge, system-item identities, and AX enumeration.
+Reference revision: 095cc56e96afd110743267894a803b58ab672333.
+FoldBar is independently maintained and is not an official Pelmet, Thaw,
+or Hidden Bar release. See REFERENCES.md for the referenced files and projects.

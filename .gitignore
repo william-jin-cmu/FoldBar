@@ -1,0 +1,11 @@
+build/
+dist/
+.DS_Store
+
+.history/
+
+.env
+.env.*
+*.p8
+*.p12
+*.mobileprovision

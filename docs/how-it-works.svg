@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="360" viewBox="0 0 1000 360" role="img" aria-label="FoldBar interaction illustration: items left of the marker fold away, items on the right remain visible">
+<rect width="1000" height="360" rx="24" fill="#17191c"/>
+<g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif">
+<text x="44" y="54" font-size="13" letter-spacing="2" fill="#b0b4bc">ONE MARKER. TWO SIDES.</text>
+<text x="44" y="94" font-size="28" font-weight="600" fill="#f2f0eb">Put less on your menu bar.</text>
+<rect x="44" y="128" width="912" height="54" rx="12" fill="#2b2e34"/>
+<rect x="44" y="239" width="912" height="54" rx="12" fill="#2b2e34"/>
+<text x="64" y="161" font-size="14" fill="#b0b4bc">Expanded</text>
+<text x="64" y="272" font-size="14" fill="#b0b4bc">Folded</text>
+<g fill="none" stroke="#d5d8de" stroke-width="2.5">
+<circle cx="561" cy="155" r="8"/><rect x="592" y="147" width="16" height="16" rx="4"/>
+<path d="M632 160l8-13 8 13z"/><path d="M710 146l9 9-9 9" stroke="#f5a353" stroke-width="3"/>
+<path d="M780 145h15v20h-15zM786 140v5M786 165v5"/>
+<rect x="823" y="147" width="22" height="15" rx="3"/><path d="M848 152v5"/>
+<path d="M710 257l-9 9 9 9" stroke="#f5a353" stroke-width="3"/>
+<path d="M780 256h15v20h-15zM786 251v5M786 276v5"/>
+<rect x="823" y="258" width="22" height="15" rx="3"/><path d="M848 263v5"/>
+</g>
+<g font-size="14" fill="#e8e9ec"><text x="871" y="160">9:41</text><text x="871" y="271">9:41</text></g>
+<path d="M530 197h130M770 197h162" stroke="#656a74"/>
+<text x="532" y="218" font-size="12" fill="#b0b4bc">Left: folds away</text>
+<text x="770" y="218" font-size="12" fill="#b0b4bc">Right: stays visible</text>
+<text x="44" y="331" font-size="13" fill="#b0b4bc">⌘-drag to arrange · Click the marker to fold / reveal</text>
+<text x="847" y="331" font-size="11" fill="#858a94">Interaction illustration</text>
+</g></svg>

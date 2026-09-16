@@ -1,0 +1,18 @@
+name: Build and test
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Boundary and visibility tests
+        run: ./test.sh
+      - name: Build arm64 app (ad-hoc signature)
+        run: ./build.sh
+      - name: Verify bundle
+        run: codesign --verify --deep --strict build/FoldBar.app
