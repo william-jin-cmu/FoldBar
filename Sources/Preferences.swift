@@ -29,6 +29,7 @@ final class Preferences: ObservableObject {
     @Published var size: Double { didSet { defaults.set(size, forKey: "controlSize"); changed?() } }
     @Published var autoHide: Int { didSet { defaults.set(autoHide, forKey: "autoHideDelay"); changed?() } }
     @Published var collapseOnLaunch: Bool { didSet { defaults.set(collapseOnLaunch, forKey: "collapseOnLaunch"); changed?() } }
+    @Published var mirror: Bool { didSet { defaults.set(mirror, forKey: "mirrorOnAllDisplays"); changed?() } }
     @Published var shortcut: Bool { didSet { defaults.set(shortcut, forKey: "enableShortcut"); changed?() } }
     @Published var collapsed = false
     @Published var busy = false
@@ -45,6 +46,7 @@ final class Preferences: ObservableObject {
         autoHide = UserDefaults.standard.integer(forKey: "autoHideDelay")
         collapseOnLaunch = UserDefaults.standard.bool(forKey: "collapseOnLaunch")
         shortcut = UserDefaults.standard.object(forKey: "enableShortcut") as? Bool ?? true
+        mirror = UserDefaults.standard.object(forKey: "mirrorOnAllDisplays") as? Bool ?? true
         defaults.removeObject(forKey: "hideSystem0")
         defaults.removeObject(forKey: "hideSystem4")
     }

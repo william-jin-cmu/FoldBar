@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.3.0 — 2026-09-23
+
+- Fix: after closing and reopening the lid, icons stayed expanded until the marker was clicked. Recovery made a single attempt two seconds after wake, which landed on the lock screen where the menu bar is unreadable; that failure discarded the fold intent, and nothing re-triggered it on unlock.
+- Recovery is now a policy (`Recovery`, `FoldFailure`): it holds while the screen is locked, restarts on `com.apple.screenIsUnlocked`, retries transient failures (unreadable snapshot, missing marker, rejected or unverified request, timeout) on a 2/3/5/8/12 s backoff, and only reports permanent ones (install location, competing manager, missing interface or permission) or an exhausted schedule.
+- A click on the visibly expanded bar during a pending recovery folds it immediately instead of silently cancelling the refold and waiting for auto-hide.
+- Optional marker copies on secondary displays (macOS only places app icons on the main menu bar).
+- Unit tests for the recovery policy; the rapid regression test covers lock/unlock hold, transient retry, user-failure reporting, and click semantics during recovery.
+
+- Preserve collapsed intent through repeated system recovery events, including while settings are open.
+- Keep opening settings from triggering a reveal, and preserve auto-hide timers when recovery is unnecessary.
+- Treat an explicit toggle during pending recovery as a reveal and cancel the pending refold.
+- Validate repeated recovery with settings open and explicit reveal cancellation in the rapid regression test.
+
+## 0.2.9 — 2026-09-17
+
+- Preserve the current fold state and auto-hide timer when another app launches.
+- Keep recovery on wake, session activation, and display changes.
+
 ## 0.2.8 — 2026-09-16
 
 First public release, built for macOS 27 / Apple Silicon.

@@ -47,7 +47,7 @@ Right-click the marker for settings or **Restore all icons**. The optional globa
 - **One rule for app and supported system icons**, based on their position.
 - **Six marker styles**, including arrows and dots, in three sizes.
 - **Optional auto-hide** after 5, 10, or 30 seconds, plus launch at login and fold on launch.
-- **Restore on wake, display changes, or app launch**, so newly added icons remain accessible.
+- **Folds back by itself after wake, unlock, or display changes**, waiting for the lock screen to go away and retrying while the menu bar settles; launching other apps preserves the current fold state.
 - **Native Swift, AppKit, and SwiftUI**, with no third-party runtime dependencies.
 - **Local operation**: no account, analytics, telemetry, or screen-recording permission.
 

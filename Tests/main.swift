@@ -34,3 +34,47 @@ precondition(VisibilityPlan.allowedSystem(hidden: leftSystem) == [1,2,3,5,6,7,8]
 let shownInput = VisibilityPlan.allowedBundles(running: ["com.apple.TextInputMenuAgent"], items: systemItems, hidden: [], own: "foldbar")
 precondition(shownInput.contains("com.apple.TextInputMenuAgent"))
 print("8 unified visibility / protected control checks passed")
+
+// Menu bar copies on displays the system has not populated yet.
+let main = MirrorPlan.Bar(id: 1, top: 0, minX: 0, maxX: 1920)
+let side = MirrorPlan.Bar(id: 2, top: 112, minX: -1728, maxX: 0)
+let onMain = [item("other", 1600), item("foldbar", 1689)]
+let onSide = [item("other", -400, 112), item("foldbar", -231, 112)]
+// Only the populated bar carries the control: the other gets a copy at the
+// same distance from its right edge.
+precondition(MirrorPlan.clones(items: onMain + [item("other", -400, 112)], bars: [main, side], own: "foldbar") == [2: 231])
+// Both bars already show it: no copy anywhere.
+precondition(MirrorPlan.clones(items: onMain + onSide, bars: [main, side], own: "foldbar").isEmpty)
+// A bar that reads as empty is left alone rather than guessed at.
+precondition(MirrorPlan.clones(items: onMain, bars: [main, side], own: "foldbar").isEmpty)
+// Nothing to copy while the control itself is unreadable.
+precondition(MirrorPlan.clones(items: [item("other", 1600), item("other", -400, 112)], bars: [main, side], own: "foldbar").isEmpty)
+// A single display never needs a copy.
+precondition(MirrorPlan.clones(items: onMain, bars: [main], own: "foldbar").isEmpty)
+print("5 menu bar copy placement checks passed")
+
+// Recovery policy: hold on lock, back off while the bar settles, give up once.
+precondition(Recovery.step(attempt: 0, screenLocked: true) == .holdUntilUnlock)
+precondition(Recovery.step(attempt: 4, screenLocked: true) == .holdUntilUnlock)
+precondition(Recovery.step(attempt: 0, screenLocked: false) == .wait(seconds: Recovery.backoff[0]))
+precondition(Recovery.step(attempt: Recovery.backoff.count - 1, screenLocked: false) == .wait(seconds: Recovery.backoff.last!))
+precondition(Recovery.step(attempt: Recovery.backoff.count, screenLocked: false) == .giveUp)
+precondition(Recovery.step(attempt: -1, screenLocked: false) == .giveUp)
+precondition(Recovery.backoff == Recovery.backoff.sorted(), "later attempts wait longer")
+precondition(Recovery.backoff.reduce(0, +) <= 45, "recovery finishes within a realistic post-wake window")
+// Transient failures retry only for system-driven recovery; permanent ones never do.
+let transient: [FoldFailure] = [.snapshot("菜单栏暂时不可读取；请解锁屏幕后重试。"), .arrowMissing, .requestRejected, .notVerified, .timedOut]
+let permanent: [FoldFailure] = [.notInApplications, .competitors(["Bartender"]), .interfaceUnavailable, .accessibilityDenied]
+for failure in transient {
+    precondition(!failure.permanent && !failure.showsSettings)
+    precondition(Recovery.retries(failure, origin: .recovery))
+    precondition(!Recovery.retries(failure, origin: .user))
+}
+for failure in permanent {
+    precondition(failure.permanent && failure.showsSettings)
+    precondition(!Recovery.retries(failure, origin: .recovery))
+    precondition(!Recovery.retries(failure, origin: .user))
+}
+precondition(FoldFailure.competitors(["Ice", "Bartender"]).message.contains("Ice、Bartender"))
+precondition(FoldFailure.snapshot("x").message == "x")
+print("10 recovery policy / failure routing checks passed")

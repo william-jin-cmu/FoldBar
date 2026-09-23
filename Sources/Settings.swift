@@ -36,7 +36,7 @@ struct SettingsView: View {
                     Circle().fill(preferences.accessibility ? Color.green : Color.orange).frame(width: 6, height: 6)
                     Text(preferences.accessibility ? "已就绪" : "需要辅助功能权限").font(.caption).foregroundStyle(.secondary)
                 }
-                Text("0.2.8 · macOS 27").font(.caption2).foregroundStyle(.tertiary)
+                Text("0.3.0 · macOS 27").font(.caption2).foregroundStyle(.tertiary)
             }.padding(18).frame(width: 174).background(.quaternary.opacity(0.45))
             Divider()
             VStack(alignment: .leading, spacing: 0) {
@@ -87,8 +87,12 @@ struct SettingsView: View {
                     Text("10 秒后").tag(10)
                     Text("30 秒后").tag(30)
                 }
+                Toggle("在其他显示器上也显示标记", isOn: $preferences.mirror)
                 Toggle(isOn: $preferences.shortcut) {
                     HStack { Text("快捷键展开 / 收起"); Spacer(); Text("⌥ ⌘ B").foregroundStyle(.secondary) }
+                }
+                if preferences.mirror {
+                    Text("macOS 只在主显示器的菜单栏放置应用图标，其他屏幕上的标记由 FoldBar 自己绘制。").font(.caption).foregroundStyle(.secondary)
                 }
                 if preferences.shortcut && !preferences.shortcutRegistered {
                     Text("快捷键未注册，可能与其他应用冲突。").font(.caption).foregroundStyle(.orange)
@@ -160,7 +164,7 @@ struct SettingsView: View {
             Image(nsImage: NSImage(named: "AppIcon") ?? NSApp.applicationIconImage).resizable().frame(width: 110, height: 110)
             Text("FoldBar").font(.system(size: 28, weight: .semibold))
             Text("Less on the bar. More room to focus.").font(.callout).foregroundStyle(.secondary)
-            Text("版本 0.2.8 · 为 macOS 27 制作").font(.caption).foregroundStyle(.secondary)
+            Text("版本 0.3.0 · 为 macOS 27 制作").font(.caption).foregroundStyle(.secondary)
             Divider().padding(.vertical, 10)
             VStack(alignment: .leading, spacing: 12) {
                 Label("按住 ⌘ 拖动：左边收起，右边常驻", systemImage: "cursorarrow.motionlines")
