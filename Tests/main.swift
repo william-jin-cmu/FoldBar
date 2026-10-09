@@ -35,22 +35,24 @@ let shownInput = VisibilityPlan.allowedBundles(running: ["com.apple.TextInputMen
 precondition(shownInput.contains("com.apple.TextInputMenuAgent"))
 print("8 unified visibility / protected control checks passed")
 
-// Menu bar copies on displays the system has not populated yet.
+// Menu bar copies on displays that do not carry the real control.
 let main = MirrorPlan.Bar(id: 1, top: 0, minX: 0, maxX: 1920)
 let side = MirrorPlan.Bar(id: 2, top: 112, minX: -1728, maxX: 0)
 let onMain = [item("other", 1600), item("foldbar", 1689)]
 let onSide = [item("other", -400, 112), item("foldbar", -231, 112)]
-// Only the populated bar carries the control: the other gets a copy at the
-// same distance from its right edge.
-precondition(MirrorPlan.clones(items: onMain + [item("other", -400, 112)], bars: [main, side], own: "foldbar") == [2: 231])
+func clones(_ items: [BarItem], _ bars: [MirrorPlan.Bar] = [main, side]) -> [UInt32: CGFloat] {
+    MirrorPlan.clones(items: items, bars: bars, own: "foldbar", width: 28, gap: 4)
+}
+// The copy sits just left of the other bar's leftmost item, never on top of one.
+precondition(clones(onMain + [item("other", -400, 112), item("clock", -116, 112)]) == [2: 432])
 // Both bars already show it: no copy anywhere.
-precondition(MirrorPlan.clones(items: onMain + onSide, bars: [main, side], own: "foldbar").isEmpty)
+precondition(clones(onMain + onSide).isEmpty)
 // A bar that reads as empty is left alone rather than guessed at.
-precondition(MirrorPlan.clones(items: onMain, bars: [main, side], own: "foldbar").isEmpty)
+precondition(clones(onMain).isEmpty)
 // Nothing to copy while the control itself is unreadable.
-precondition(MirrorPlan.clones(items: [item("other", 1600), item("other", -400, 112)], bars: [main, side], own: "foldbar").isEmpty)
+precondition(clones([item("other", 1600), item("other", -400, 112)]).isEmpty)
 // A single display never needs a copy.
-precondition(MirrorPlan.clones(items: onMain, bars: [main], own: "foldbar").isEmpty)
+precondition(clones(onMain, [main]).isEmpty)
 print("5 menu bar copy placement checks passed")
 
 // Recovery policy: hold on lock, back off while the bar settles, give up once.

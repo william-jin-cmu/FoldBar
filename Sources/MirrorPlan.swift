@@ -17,7 +17,14 @@ enum MirrorPlan {
     /// the left edge of the copy. A bar that already carries the control, or
     /// that reads as empty, is left alone: a stale copy beside the real item
     /// is worse than a missing one.
-    static func clones(items: [BarItem], bars: [Bar], own: String) -> [UInt32: CGFloat] {
+    ///
+    /// The copy is a floating panel and cannot push icons aside, and the other
+    /// bars leave out some items (the control itself among them), so a fixed
+    /// distance from the right edge lands on top of unrelated icons. Instead it
+    /// sits just left of the bar's leftmost item: while folded the bar only
+    /// shows the right side, which puts the copy exactly on the boundary; while
+    /// expanded it stays clear of every icon.
+    static func clones(items: [BarItem], bars: [Bar], own: String, width: CGFloat, gap: CGFloat = 4) -> [UInt32: CGFloat] {
         guard bars.count > 1 else { return [:] }
         let rows = bars.map { bar in
             (bar: bar, items: items.filter {
@@ -25,16 +32,12 @@ enum MirrorPlan {
                 $0.frame.midX > bar.minX && $0.frame.midX < bar.maxX
             })
         }
-        func inset(_ bar: Bar, _ item: BarItem) -> CGFloat { max(0, bar.maxX - item.frame.minX) }
-        // Keep the copy the same distance from the right edge as the real
-        // marker, so every bar shows the same boundary.
-        let host = rows.first { row in row.items.contains { $0.bundle == own } }
-        guard let hostInset = host.flatMap({ row in
-            row.items.filter { $0.bundle == own }.map { inset(row.bar, $0) }.max()
-        }) else { return [:] }
+        // Nothing to copy while the control itself is unreadable.
+        guard rows.contains(where: { row in row.items.contains { $0.bundle == own } }) else { return [:] }
         var plan: [UInt32: CGFloat] = [:]
-        for row in rows where !row.items.isEmpty && !row.items.contains(where: { $0.bundle == own }) {
-            plan[row.bar.id] = hostInset
+        for row in rows where !row.items.contains(where: { $0.bundle == own }) {
+            guard let left = row.items.map(\.frame.minX).min() else { continue }
+            plan[row.bar.id] = row.bar.maxX - left + gap + width
         }
         return plan
     }

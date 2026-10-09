@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Fix: on a secondary display that lacks the real marker, the drawn copy kept a fixed distance from the right edge. That bar also omits other icons, so the copy landed on top of unrelated icons and made left-side items look like they were on the right. It now sits just left of that bar's leftmost icon, which is the fold boundary while folded and clear of every icon while expanded.
+- Re-place the copy shortly after each fold or reveal instead of waiting for the 10 s poll, and no longer drop a re-read requested while one is in flight.
+
 ## 0.3.0 — 2026-09-23
 
 - Fix: after closing and reopening the lid, icons stayed expanded until the marker was clicked. Recovery made a single attempt two seconds after wake, which landed on the lock screen where the menu bar is unreadable; that failure discarded the fold intent, and nothing re-triggered it on unlock.

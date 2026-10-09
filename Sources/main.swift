@@ -13,6 +13,7 @@ final class FoldBar: NSObject, NSApplicationDelegate {
     private var removalObservation: NSKeyValueObservation?
     private var revealedAt = Date.distantPast
     private var lastArrow: CGRect?
+    private var drawnState: (collapsed: Bool, busy: Bool)?
     private var autoHideTask: Task<Void, Never>?
     private var refoldTask: Task<Void, Never>?
     // The fold state the user last asked for, kept across system-driven reveals.
@@ -139,6 +140,9 @@ final class FoldBar: NSObject, NSApplicationDelegate {
         let tip = preferences.message ?? (preferences.busy ? "正在整理菜单栏…" : preferences.collapsed ? "点击展开 · 右键设置 · ⌥⌘B" : "⌘ 拖拽：左侧收起，右侧常驻 · 右键设置")
         status.button?.toolTip = tip
         mirror.update(image: image, toolTip: tip)
+        let state = (collapsed: preferences.collapsed, busy: preferences.busy)
+        if let drawnState, drawnState != state { mirror.reflow() }
+        drawnState = state
     }
     @objc private func click() {
         let event = NSApp.currentEvent

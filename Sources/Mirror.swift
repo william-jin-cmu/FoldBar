@@ -16,6 +16,8 @@ final class StatusMirror {
     private var image: NSImage?
     private var toolTip: String?
     private var probing = false
+    private var probeAgain = false
+    private var reflowTask: Task<Void, Never>?
     private var poll: Task<Void, Never>?
     private let width: CGFloat = 28
 
@@ -57,8 +59,23 @@ final class StatusMirror {
         }
     }
 
+    /// A fold or reveal changes which icons the other bars show, and the copy
+    /// sits beside them. Re-read once the bars have reflowed, then once more
+    /// for a slow agent.
+    func reflow() {
+        reflowTask?.cancel()
+        guard enabled, NSScreen.screens.count > 1 else { return }
+        reflowTask = Task { [weak self] in
+            for delay in [0.6, 1.5] {
+                do { try await Task.sleep(for: .seconds(delay)) } catch { return }
+                self?.refresh(probe: true)
+            }
+        }
+    }
+
     func teardown() {
         poll?.cancel(); poll = nil
+        reflowTask?.cancel(); reflowTask = nil
         for panel in panels.values { panel.orderOut(nil) }
         panels.removeAll()
         insets.removeAll()
@@ -98,7 +115,10 @@ final class StatusMirror {
     }
 
     private func probe() {
-        guard !probing, AXIsProcessTrusted() else { return }
+        guard AXIsProcessTrusted() else { return }
+        // A request during a read must not be dropped: the bar may have
+        // changed after that read started.
+        guard !probing else { probeAgain = true; return }
         probing = true
         let screens = NSScreen.screens
         guard let top = screens.first?.frame.maxY else { probing = false; return }
@@ -112,9 +132,12 @@ final class StatusMirror {
         Task { [weak self] in
             let snapshot = await Task.detached { MenuSnapshot.read() }.value
             guard let self else { return }
-            defer { self.probing = false }
+            defer {
+                self.probing = false
+                if self.probeAgain { self.probeAgain = false; self.probe() }
+            }
             guard snapshot.error == nil, !snapshot.items.isEmpty else { return }
-            let plan = MirrorPlan.clones(items: snapshot.items, bars: bars, own: self.ownBundle)
+            let plan = MirrorPlan.clones(items: snapshot.items, bars: bars, own: self.ownBundle, width: self.width)
             guard plan != self.insets else { return }
             self.insets = plan
             self.refresh()
