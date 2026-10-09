@@ -33,7 +33,7 @@ final class FoldBar: NSObject, NSApplicationDelegate {
         NSApp.setActivationPolicy(.accessory)
         installMainMenu()
         guard NSRunningApplication.runningApplications(withBundleIdentifier: ownBundle).count <= 1 else { NSApp.terminate(nil); return }
-        status = NSStatusBar.system.statusItem(withLength: 28)
+        status = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         status.autosaveName = "FoldBar.Arrow"
         status.behavior = .removalAllowed
         status.isVisible = true
