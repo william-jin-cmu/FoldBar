@@ -6,7 +6,7 @@ if [[ ! -d "$SDK" ]]; then SDK="$(xcrun --sdk macosx --show-sdk-path)"; fi
 export SDKROOT="$SDK"
 mkdir -p build/FoldBar.app/Contents/MacOS
 xcrun clang -isysroot "$SDK" -mmacosx-version-min=14.0 -fobjc-arc -fmodules -c Sources/Bridge.m -o build/Bridge.o
-xcrun swiftc -sdk "$SDK" -target arm64-apple-macos14.0 -swift-version 5 -O -import-objc-header Sources/Bridge.h Sources/Boundary.swift Sources/MenuSnapshot.swift Sources/SmokeTest.swift Sources/Preferences.swift Sources/Settings.swift Sources/Shortcut.swift Sources/MirrorPlan.swift Sources/Mirror.swift Sources/Recovery.swift Sources/main.swift build/Bridge.o -o build/FoldBar.app/Contents/MacOS/FoldBar -framework AppKit -framework ApplicationServices -framework ServiceManagement -framework SwiftUI -framework Carbon
+xcrun swiftc -sdk "$SDK" -target arm64-apple-macos14.0 -swift-version 5 -O -import-objc-header Sources/Bridge.h Sources/Boundary.swift Sources/MenuSnapshot.swift Sources/SmokeTest.swift Sources/Preferences.swift Sources/Settings.swift Sources/Shortcut.swift Sources/MirrorPlan.swift Sources/Mirror.swift Sources/Recovery.swift Sources/ClockPeek.swift Sources/main.swift build/Bridge.o -o build/FoldBar.app/Contents/MacOS/FoldBar -framework AppKit -framework ApplicationServices -framework ServiceManagement -framework SwiftUI -framework Carbon
 mkdir -p build/FoldBar.app/Contents/Resources build/AppIcon.iconset
 for size in 16 32 128 256 512; do
     sips -z "$size" "$size" Assets/FoldBar-logo-v2.png --out "build/AppIcon.iconset/icon_${size}x${size}.png" >/dev/null

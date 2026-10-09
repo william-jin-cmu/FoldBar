@@ -13,6 +13,9 @@ final class FoldBar: NSObject, NSApplicationDelegate {
     private var removalObservation: NSKeyValueObservation?
     private var revealedAt = Date.distantPast
     private var lastArrow: CGRect?
+    // Clock frames from the last fold snapshot, for the Notification Center peek.
+    private var clockFrames: [CGRect] = []
+    private var clickMonitor: Any?
     private var drawnState: (collapsed: Bool, busy: Bool)?
     private var autoHideTask: Task<Void, Never>?
     private var refoldTask: Task<Void, Never>?
@@ -76,6 +79,10 @@ final class FoldBar: NSObject, NSApplicationDelegate {
             observers.append(DistributedNotificationCenter.default().addObserver(forName: Notification.Name(name), object: nil, queue: .main) { [weak self] _ in
                 Task { @MainActor in self?.screenLock(locked) }
             })
+        }
+        clickMonitor = NSEvent.addGlobalMonitorForEvents(matching: .leftMouseDown) { [weak self] _ in
+            let pointer = NSEvent.mouseLocation
+            Task { @MainActor in self?.clockClicked(at: pointer) }
         }
         if testing {
             if CommandLine.arguments.contains("--rapid-test") { runRapidTest() } else { runIntegrationTest() }
@@ -269,6 +276,7 @@ final class FoldBar: NSObject, NSApplicationDelegate {
                 fail(.arrowMissing, origin: origin); return
             }
             lastArrow = arrow.frame
+            clockFrames = snapshot.items.filter { $0.systemID == 2 }.map(\.frame)
             let screen = NSScreen.screens.map { CGRect(x: $0.frame.minX, y: top - $0.frame.maxY, width: $0.frame.width, height: $0.frame.height) }
                 .first { $0.contains(CGPoint(x: arrow.frame.midX, y: arrow.frame.midY)) }
             let targets = Boundary.hidden(items: snapshot.items, arrow: arrow.frame, ownBundle: ownBundle, screen: screen)
@@ -312,6 +320,35 @@ final class FoldBar: NSObject, NSApplicationDelegate {
                 }
             }
             fail(.notVerified, origin: origin)
+        }
+    }
+    /// Folded, the clock cannot open Notification Center. Reveal, press the
+    /// clock, and fold again once the panel is up; the panel survives a fold.
+    /// A click while it is already open closes it natively, so leave that alone.
+    private func clockClicked(at pointer: CGPoint) {
+        let top = NSScreen.screens.first?.frame.maxY ?? 0
+        let point = CGPoint(x: pointer.x, y: top - pointer.y)
+        guard assertion != nil, wantsCollapsed, !preferences.busy,
+              clockFrames.contains(where: { $0.insetBy(dx: -2, dy: -2).contains(point) }),
+              !ClockPeek.notificationCenterOpen() else { return }
+        restore()
+        let ticket = generation
+        Task {
+            var opened = false
+            // Each press needs the reveal to land first; pressing again while
+            // the panel animates in would close it, so wait out every press.
+            for _ in 0..<4 where !opened {
+                try? await Task.sleep(for: .milliseconds(200))
+                guard ticket == generation, wantsCollapsed else { return }
+                _ = ClockPeek.press(near: point)
+                for _ in 0..<6 where !opened {
+                    try? await Task.sleep(for: .milliseconds(100))
+                    opened = ClockPeek.notificationCenterOpen()
+                }
+            }
+            guard ticket == generation, wantsCollapsed else { return }
+            if !opened { NSLog("FoldBar: Notification Center did not open from the clock") }
+            collapse(origin: .user)
         }
     }
     @objc private func revealAll() { reveal() }

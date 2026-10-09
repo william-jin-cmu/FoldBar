@@ -56,7 +56,7 @@ Right-click the marker for settings or **Restore all icons**. The optional globa
 FoldBar is an early release, tested on **macOS 27.0 (26A428), Apple Silicon**. It uses a private macOS interface that may change between OS builds. It does not support macOS 26 or Intel Macs.
 
 - **Install in Applications.** macOS may hide FoldBar's own marker if it runs from a temporary or build directory. FoldBar checks its installation location before folding.
-- **Some system items stay visible**, including the clock and Control Center. The OS may suppress other extras, such as Now Playing, while folded, and clock/Notification Center interactions can be affected. Expanding restores normal behavior.
+- **Some system items stay visible**, including the clock and Control Center. The OS may suppress other extras, such as Now Playing, while folded; expanding restores them. Clicking the clock while folded briefly reveals the bar to open Notification Center, then folds again.
 - **Multiple icons from one app are managed together.** If that app has icons on both sides, FoldBar keeps the app visible.
 - **The notch and available menu bar width still apply.** There is no separate floating icon tray.
 - **Multi-display behavior is not exhaustively tested.** Display changes intentionally reveal all icons.
