@@ -26,6 +26,9 @@ final class FoldBar: NSObject, NSApplicationDelegate {
     // Tracked from the distributed lock notifications; the menu bar is not
     // readable while the lock screen is up, so recovery waits for unlock.
     private var screenLocked = false
+    // Display layout at the last screen-parameters change. Entering or leaving
+    // full screen posts that change too; refolding then flashes the bar open.
+    private var screenLayout = FullScreen.layout()
     private let preferences = Preferences()
     private let settings = SettingsWindow()
     private lazy var mirror = StatusMirror(ownBundle: ownBundle)
@@ -63,7 +66,7 @@ final class FoldBar: NSObject, NSApplicationDelegate {
             })
         }
         observers.append(NotificationCenter.default.addObserver(forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main) { [weak self] _ in
-            Task { @MainActor in self?.lastArrow = nil; self?.mirror.refresh(probe: true); self?.recover() }
+            Task { @MainActor in self?.screensChanged() }
         })
         // Entering or leaving a full-screen space changes which secondary bars
         // exist; the clones follow.
@@ -199,6 +202,14 @@ final class FoldBar: NSObject, NSApplicationDelegate {
         restore()
         recoveryAttempt = 0
         scheduleRefold()
+    }
+    private func screensChanged() {
+        mirror.refresh(probe: true)
+        let layout = FullScreen.layout()
+        guard layout != screenLayout else { return }
+        screenLayout = layout
+        lastArrow = nil
+        recover()
     }
     /// Lock state feeds the recovery schedule. Unlock restarts it from the
     /// first delay because the bar reflows again once the session is back.

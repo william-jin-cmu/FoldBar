@@ -43,13 +43,18 @@ final class StatusMirror {
         guard enabled, NSScreen.screens.count > 1 else { teardown(); return }
         schedulePoll()
         if probe { self.probe() }
+        // A clone floating over a full-screen space holds that bar open.
+        let fullScreen = FullScreen.screens()
         for screen in NSScreen.screens {
             guard let id = Self.displayID(screen) else { continue }
-            guard let inset = insets[id], let frame = Self.slot(screen, width: width, inset: inset) else {
+            guard !fullScreen.contains(id), let inset = insets[id], let frame = Self.slot(screen, width: width, inset: inset) else {
                 panels[id]?.orderOut(nil)
                 continue
             }
             let panel = panels[id] ?? make(id: id)
+            // Re-ordering an unchanged clone on every poll is a menu bar
+            // change the system answers by sliding the bar in.
+            guard !panel.isVisible || panel.frame != frame else { continue }
             panel.setFrame(frame, display: true)
             panel.orderFrontRegardless()
         }
