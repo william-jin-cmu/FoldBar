@@ -1,7 +1,9 @@
 # Changelog
 
-## Unreleased
+## 0.3.1 — 2026-10-22
 
+- Fix: in a full-screen space the menu bar often stayed down instead of sliding away. Entering or leaving full screen posts a screen-parameters change, which FoldBar treated as a display change and answered with a reveal-and-refold; the bar change pulled the hidden menu bar back in. Only a real display layout change (displays added, removed, moved or resized) triggers recovery now. The fold itself is unchanged in full screen, so the bar still slides in folded.
+- Secondary-display marker copies stay off displays showing a full-screen window, and an unchanged copy is no longer re-ordered on every poll.
 - Clicking the clock while folded now opens Notification Center. macOS suppresses it under the fold, so FoldBar reveals briefly, presses the clock through accessibility, and folds again once the panel is up (the open panel survives the fold). A click while it is open still closes it natively.
 - Fix: on a secondary display that lacks the real marker, the drawn copy kept a fixed distance from the right edge. That bar also omits other icons, so the copy landed on top of unrelated icons and made left-side items look like they were on the right. It now sits just left of that bar's leftmost icon, which is the fold boundary while folded and clear of every icon while expanded.
 - Size the marker to its symbol instead of a fixed 28 pt, so it is spaced like the neighbouring icons.
