@@ -29,6 +29,9 @@ final class FoldBar: NSObject, NSApplicationDelegate {
     // Display layout at the last screen-parameters change. Entering or leaving
     // full screen posts that change too; refolding then flashes the bar open.
     private var screenLayout = FullScreen.layout()
+    // Displays covered by a full-screen window after the last space change.
+    private var fullScreens = FullScreen.screens()
+    private var spaceTask: Task<Void, Never>?
     private let preferences = Preferences()
     private let settings = SettingsWindow()
     private lazy var mirror = StatusMirror(ownBundle: ownBundle)
@@ -71,7 +74,7 @@ final class FoldBar: NSObject, NSApplicationDelegate {
         // Entering or leaving a full-screen space changes which secondary bars
         // exist; the clones follow.
         observers.append(NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.activeSpaceDidChangeNotification, object: nil, queue: .main) { [weak self] _ in
-            Task { @MainActor in self?.mirror.refresh(probe: true) }
+            Task { @MainActor in self?.spaceChanged() }
         })
         observers.append(NotificationCenter.default.addObserver(forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in
             Task { @MainActor in self?.preferences.refresh() }
@@ -210,6 +213,24 @@ final class FoldBar: NSObject, NSApplicationDelegate {
         screenLayout = layout
         lastArrow = nil
         recover()
+    }
+    /// A full-screen space created while the bar is folded inherits a menu
+    /// bar that never slides away. One folded after the space exists hides
+    /// normally, so refold once the window has finished growing; the bar is
+    /// hidden there, so the brief reveal is not seen.
+    private func spaceChanged() {
+        mirror.refresh(probe: true)
+        spaceTask?.cancel()
+        spaceTask = Task { [weak self] in
+            do { try await Task.sleep(for: .seconds(1)) } catch { return }
+            guard let self else { return }
+            let screens = FullScreen.screens()
+            let entered = !screens.subtracting(self.fullScreens).isEmpty
+            self.fullScreens = screens
+            guard entered, self.wantsCollapsed, self.assertion != nil, !self.preferences.busy else { return }
+            NSLog("FoldBar: entered full screen while folded, refolding")
+            self.recover()
+        }
     }
     /// Lock state feeds the recovery schedule. Unlock restarts it from the
     /// first delay because the bar reflows again once the session is back.
