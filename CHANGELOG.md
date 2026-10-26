@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.2 — 2026-10-26
+
+- Fix: entering full screen while folded could leave the menu bar stuck down in that space. A full-screen space created while the hide assertion is active keeps its bar pinned; one folded after the space exists hides normally. FoldBar now notices a space change that adds a full-screen display and, if folded, releases and refolds two seconds later. The bar is hidden there, so the brief reveal is not seen.
+
 ## 0.3.1 — 2026-10-22
 
 - Fix: in a full-screen space the menu bar often stayed down instead of sliding away. Entering or leaving full screen posts a screen-parameters change, which FoldBar treated as a display change and answered with a reveal-and-refold; the bar change pulled the hidden menu bar back in. Only a real display layout change (displays added, removed, moved or resized) triggers recovery now. The fold itself is unchanged in full screen, so the bar still slides in folded.
