@@ -29,6 +29,8 @@ final class FoldBar: NSObject, NSApplicationDelegate {
     // Display layout at the last screen-parameters change. Entering or leaving
     // full screen posts that change too; refolding then flashes the bar open.
     private var screenLayout = FullScreen.layout()
+    // Bundles the last fold kept visible, in case a later snapshot misses them.
+    private var keptVisible: Set<String> = []
     // Displays covered by a full-screen window after the last space change.
     private var fullScreens = FullScreen.screens()
     private var spaceTask: Task<Void, Never>?
@@ -296,7 +298,8 @@ final class FoldBar: NSObject, NSApplicationDelegate {
             var snapshot = await Task.detached { MenuSnapshot.read() }.value
             guard ticket == generation else { return }
             // The remote menu bar briefly removes its AX windows during reflow.
-            for _ in 0..<3 where snapshot.error != nil || !snapshot.items.contains(where: { $0.bundle == ownBundle }) {
+            // An unresolved group is an item that would escape the fold.
+            for _ in 0..<5 where snapshot.error != nil || snapshot.unresolved > 0 || !snapshot.items.contains(where: { $0.bundle == ownBundle }) {
                 try? await Task.sleep(for: .milliseconds(100))
                 guard ticket == generation else { return }
                 snapshot = await Task.detached { MenuSnapshot.read() }.value
@@ -315,8 +318,8 @@ final class FoldBar: NSObject, NSApplicationDelegate {
             preferences.count = targets.count
             // Empty left side is still a valid collapsed state, not an error.
             guard !targets.isEmpty else { preferences.busy = false; preferences.collapsed = true; redraw(); return }
-            let running = Set(NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier))
-            let allowed = VisibilityPlan.allowedBundles(running: running, items: snapshot.items, hidden: targets, own: ownBundle)
+            let allowed = VisibilityPlan.allowedBundles(items: snapshot.items, hidden: targets, own: ownBundle, remembered: keptVisible)
+            keptVisible = allowed
             let system = VisibilityPlan.allowedSystem(hidden: targets).map { NSNumber(value: $0) }
             let handle = FBHide(allowed.sorted(), system) { [weak self] error in
                 let message = error?.localizedDescription

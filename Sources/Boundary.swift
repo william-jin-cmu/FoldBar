@@ -34,8 +34,12 @@ enum Boundary {
 /// A single visibility rule for every item. System identifiers only change
 /// how the same left/right decision is conveyed to the OS.
 enum VisibilityPlan {
-    static func allowedBundles(running: Set<String>, items: [BarItem], hidden: Set<String>, own: String) -> Set<String> {
-        var allowed = running.union(items.map(\.bundle)).subtracting(hidden)
+    /// Only bundles seen outside the hidden side stay visible. Whatever the
+    /// snapshot missed (an app that failed to answer during reflow, or one that
+    /// adds its item later, which lands on the left) stays hidden, except
+    /// bundles a previous fold kept visible.
+    static func allowedBundles(items: [BarItem], hidden: Set<String>, own: String, remembered: Set<String> = []) -> Set<String> {
+        var allowed = Set(items.map(\.bundle)).union(remembered).subtracting(hidden)
         if hidden.contains("system:4") { allowed.remove("com.apple.TextInputMenuAgent") }
         allowed.formUnion([own, "com.apple.MenuBarAgent", "com.apple.controlcenter"])
         return allowed

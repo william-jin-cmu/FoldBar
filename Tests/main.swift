@@ -26,14 +26,18 @@ check([item("com.apple.MenuBarAgent", 20, system: 2), item("com.apple.MenuBarAge
 let systemItems = [item("com.apple.MenuBarAgent", 40, system: 0), item("com.apple.TextInputMenuAgent", 60, system: 4)]
 let leftSystem = Boundary.hidden(items: systemItems, arrow: arrow, ownBundle: "foldbar")
 precondition(leftSystem == ["system:0", "system:4"])
-let allowed = VisibilityPlan.allowedBundles(running: ["foldbar", "visible", "hidden", "com.apple.TextInputMenuAgent"], items: systemItems, hidden: leftSystem.union(["hidden", "foldbar"]), own: "foldbar")
+let allowed = VisibilityPlan.allowedBundles(items: systemItems + [item("visible", 300), item("hidden", 20)], hidden: leftSystem.union(["hidden", "foldbar"]), own: "foldbar")
 precondition(allowed.contains("foldbar"))
 precondition(allowed.contains("visible") && !allowed.contains("hidden"))
 precondition(!allowed.contains("com.apple.TextInputMenuAgent"))
 precondition(VisibilityPlan.allowedSystem(hidden: leftSystem) == [1,2,3,5,6,7,8])
-let shownInput = VisibilityPlan.allowedBundles(running: ["com.apple.TextInputMenuAgent"], items: systemItems, hidden: [], own: "foldbar")
+let shownInput = VisibilityPlan.allowedBundles(items: systemItems, hidden: [], own: "foldbar")
 precondition(shownInput.contains("com.apple.TextInputMenuAgent"))
-print("8 unified visibility / protected control checks passed")
+// A running app the snapshot missed must not slip through; a remembered right-side one stays.
+let missed = VisibilityPlan.allowedBundles(items: systemItems, hidden: leftSystem, own: "foldbar", remembered: ["pinned"])
+precondition(!missed.contains("missed") && missed.contains("pinned"))
+precondition(!VisibilityPlan.allowedBundles(items: [item("pinned", 20)], hidden: ["pinned"], own: "foldbar", remembered: ["pinned"]).contains("pinned"))
+print("10 unified visibility / protected control checks passed")
 
 // Menu bar copies on displays that do not carry the real control.
 let main = MirrorPlan.Bar(id: 1, top: 0, minX: 0, maxX: 1920)

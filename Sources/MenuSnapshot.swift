@@ -4,6 +4,9 @@ import ApplicationServices
 struct MenuSnapshot: Sendable {
     let items: [BarItem]
     let error: String?
+    /// On-screen groups whose owner could not be resolved. Such an item is
+    /// missing from `items`, so it cannot be told to hide.
+    var unresolved = 0
 
     static func read() -> MenuSnapshot {
         guard AXIsProcessTrusted() else { return .init(items: [], error: "需要辅助功能权限才能读取图标的位置。") }
@@ -15,6 +18,7 @@ struct MenuSnapshot: Sendable {
         let windows = children(root).filter { attribute($0, kAXRoleAttribute) as? String == "AXWindow" }
         var items: [BarItem] = []
         var seenFrames: [CGRect] = []
+        var unresolved: [CGRect] = []
         for window in windows {
             for group in children(window) {
                 guard let frame = frame(group), frame.width > 0,
@@ -48,10 +52,10 @@ struct MenuSnapshot: Sendable {
                     seenFrames.append(frame)
                     continue
                 }
-
+                unresolved.append(frame)
             }
         }
-        return .init(items: items, error: windows.isEmpty ? "菜单栏暂时不可读取；请解锁屏幕后重试。" : nil)
+        return .init(items: items, error: windows.isEmpty ? "菜单栏暂时不可读取；请解锁屏幕后重试。" : nil, unresolved: unresolved.filter { !seenFrames.contains($0) }.count)
     }
 
     private static func attribute(_ element: AXUIElement, _ name: String) -> CFTypeRef? {

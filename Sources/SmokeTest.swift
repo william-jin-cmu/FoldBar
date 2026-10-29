@@ -33,8 +33,7 @@ func smokeTest() -> Bool {
         print("FAIL: fixture unavailable before test; \(before.error ?? "not running")"); return false
     }
     let targets: Set<String> = [fixture, "system:0", "system:4"]
-    let running = Set(NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier))
-    let allowed = VisibilityPlan.allowedBundles(running: running, items: before.items, hidden: targets, own: own)
+    let allowed = VisibilityPlan.allowedBundles(items: before.items, hidden: targets, own: own)
     var activationError: String?
     var completed = false
     let handle = FBHide(allowed.sorted(), VisibilityPlan.allowedSystem(hidden: targets).map { NSNumber(value: $0) }) { error in
