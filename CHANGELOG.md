@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.3 — 2026-10-29
+
+- Fix: an icon on the folded side could stay visible (for example Cetus while a game was launching). The visibility allow list included every running app, so an app whose item the snapshot failed to read during a menu bar reflow was let through. Only bundles seen outside the folded side, plus those the previous fold kept visible, are allowed now; apps that add an item after the fold stay hidden. A snapshot with an item whose owner cannot be resolved is read again before folding.
+
 ## 0.3.2 — 2026-10-26
 
 - Fix: entering full screen while folded could leave the menu bar stuck down in that space. A full-screen space created while the hide assertion is active keeps its bar pinned; one folded after the space exists hides normally. FoldBar now notices a space change that adds a full-screen display and, if folded, releases and refolds two seconds later. The bar is hidden there, so the brief reveal is not seen.
